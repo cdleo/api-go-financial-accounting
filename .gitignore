@@ -1,0 +1,10 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# coverage file
+coverage.txt
+
+# Test binary, built with `go test -c`
+coverfile_out*
+
+# compiled output
+/build
