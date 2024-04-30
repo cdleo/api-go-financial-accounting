@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/cdleo/api-go-financial-accounting/internal/entity"
 	"github.com/gorilla/mux"
@@ -24,10 +25,10 @@ func NewAccountHandler(create entity.AccountCreate, retrieve entity.AccountRetri
 }
 
 func (h *accountHandler) RegisterEndpoints(router *mux.Router) {
+	router.HandleFunc("/account", h.retrieveAccounts).Methods("GET")
 	router.HandleFunc("/account", h.createAccount).Methods("POST")
-	router.HandleFunc("/account", h.retrieveAccount).Methods("GET")
-	router.HandleFunc("/accounts", h.retrieveAccounts).Methods("GET")
-	router.HandleFunc("/account", h.updateAccount).Methods("PUT")
+	router.HandleFunc("/account/{id}", h.retrieveAccount).Methods("GET")
+	router.HandleFunc("/account/{id}", h.updateAccount).Methods("PUT")
 }
 
 func (h *accountHandler) createAccount(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +62,8 @@ func (h *accountHandler) createAccount(w http.ResponseWriter, r *http.Request) {
 
 func (h *accountHandler) retrieveAccount(w http.ResponseWriter, r *http.Request) {
 
-	accountId := r.URL.Query().Get("id")
+	vars := mux.Vars(r)
+	accountId := strings.TrimSpace(vars["id"])
 
 	if accountId == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -113,6 +115,14 @@ func (h *accountHandler) retrieveAccounts(w http.ResponseWriter, r *http.Request
 
 func (h *accountHandler) updateAccount(w http.ResponseWriter, r *http.Request) {
 
+	vars := mux.Vars(r)
+	accountId := strings.TrimSpace(vars["id"])
+
+	if accountId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	var request entity.Account
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -121,6 +131,7 @@ func (h *accountHandler) updateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	request.ID = accountId
 	err := h.updateUC.UpdateAccount(request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

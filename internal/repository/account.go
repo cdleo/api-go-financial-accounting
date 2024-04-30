@@ -17,8 +17,8 @@ type accountRepository struct {
 }
 
 type AccountDTO struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"` /* ObjectID */
-	ParentID primitive.ObjectID
+	ID       primitive.ObjectID `bson:"_id,omitempty"`      /* ObjectID */
+	ParentID primitive.ObjectID `bson:"parentId,omitempty"` /* BudgetID or nil */
 	entity.AccountHeader
 	Balance   float32             `bson:"balance"`   /* Account balance (calculated from movements) */
 	Movements []entity.TrxDetails `bson:"movements"` /* Actual transactions in the account */
@@ -49,11 +49,20 @@ func (r *accountRepository) GetByID(ctx context.Context, id string) (*entity.Acc
 	return mapToAccount(&record), nil
 }
 
-func (r *accountRepository) GetByHeader(ctx context.Context, header entity.AccountHeader) (*entity.Account, error) {
+func (r *accountRepository) GetByHeader(ctx context.Context, header entity.AccountHeader, parentId string) (*entity.Account, error) {
 
 	var record AccountDTO
 
 	filter := bson.D{{"accountheader.type", header.Type}, {"accountheader.name", header.Name}, {"accountheader.currency", header.Currency}}
+
+	// convert parentId string to ObjectId
+	if len(parentId) > 0 {
+		parentObjId, err := primitive.ObjectIDFromHex(parentId)
+		if err != nil {
+			return nil, errors.New("invalid id")
+		}
+		filter = append(filter, bson.E{"parentId", parentObjId})
+	}
 
 	err := r.collection.FindOne(ctx, filter).Decode(&record)
 	if err != nil {

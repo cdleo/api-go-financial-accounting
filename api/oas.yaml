@@ -1,0 +1,204 @@
+openapi: 3.0.3
+info:
+  description: OAS for the financial accounting API
+  title: Financial Accounting API
+  version: v0.1.0
+paths:
+  /account:
+    get:
+      description: Information about this operation was obtained using only HTTP method
+        and path pattern. It may be incomplete and/or inaccurate.
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+      tags:
+      - Incomplete
+    post:
+      description: Information about this operation was obtained using only HTTP method
+        and path pattern. It may be incomplete and/or inaccurate.
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+      tags:
+      - Incomplete
+    put:
+      description: Information about this operation was obtained using only HTTP method
+        and path pattern. It may be incomplete and/or inaccurate.
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+      tags:
+      - Incomplete
+  /account-record:
+    post:
+      description: Information about this operation was obtained using only HTTP method
+        and path pattern. It may be incomplete and/or inaccurate.
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+      tags:
+      - Incomplete
+  /accounts:
+    get:
+      description: Information about this operation was obtained using only HTTP method
+        and path pattern. It may be incomplete and/or inaccurate.
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+      tags:
+      - Incomplete
+  /budget:
+    get:
+      description: Information about this operation was obtained using only HTTP method
+        and path pattern. It may be incomplete and/or inaccurate.
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+      tags:
+      - Incomplete
+    post:
+      description: Information about this operation was obtained using only HTTP method
+        and path pattern. It may be incomplete and/or inaccurate.
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+      tags:
+      - Incomplete
+  /budget-summary:
+    get:
+      description: This endpoint aggregates request in structured way.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityBudgetSummaryAccount'
+          description: OK
+        "204":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: No Content
+        "400":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: Bad Request
+        "500":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: Internal Server Error
+      summary: My Summary
+      tags:
+      - My Tag
+  /budget/{id}:
+    get:
+      description: Information about this operation was obtained using only HTTP method
+        and path pattern. It may be incomplete and/or inaccurate.
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+      tags:
+      - Incomplete
+    put:
+      description: Information about this operation was obtained using only HTTP method
+        and path pattern. It may be incomplete and/or inaccurate.
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+      tags:
+      - Incomplete
+  /transfer:
+    post:
+      description: Information about this operation was obtained using only HTTP method
+        and path pattern. It may be incomplete and/or inaccurate.
+      responses:
+        "200":
+          content:
+            text/html:
+              schema:
+                type: string
+          description: OK
+      tags:
+      - Incomplete
+components:
+  schemas:
+    EntityBudgetSummaryAccount:
+      properties:
+        currency:
+          type: string
+        currentBalance:
+          type: number
+        name:
+          type: string
+        status:
+          items:
+            $ref: '#/components/schemas/EntityExpenseSummary'
+          nullable: true
+          type: array
+        totalExpected:
+          type: number
+        type:
+          type: string
+      type: object
+    EntityExpenseSummary:
+      properties:
+        current:
+          type: number
+        expected:
+          type: number
+        type:
+          type: string
+      type: object

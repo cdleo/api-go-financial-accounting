@@ -7,6 +7,8 @@ require (
 	github.com/cdleo/go-sqldb v0.2.0
 	github.com/cdleo/gonfig v0.0.0-20220218120323-695bdc388d31
 	github.com/gorilla/mux v1.8.1
+	github.com/swaggest/openapi-go v0.2.50
+	github.com/swaggest/rest v0.2.66
 	go.mongodb.org/mongo-driver v1.14.0
 )
 
@@ -30,6 +32,10 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
+	github.com/swaggest/form/v5 v5.1.1 // indirect
+	github.com/swaggest/jsonschema-go v0.3.70 // indirect
+	github.com/swaggest/refl v1.3.0 // indirect
+	github.com/swaggest/usecase v1.3.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect

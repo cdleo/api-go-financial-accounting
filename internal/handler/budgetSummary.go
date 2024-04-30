@@ -6,25 +6,54 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/cdleo/api-go-financial-accounting/internal/entity"
 	"github.com/cdleo/api-go-financial-accounting/internal/service"
 	"github.com/gorilla/mux"
+	"github.com/swaggest/openapi-go"
+	"github.com/swaggest/rest"
+	"github.com/swaggest/rest/gorillamux"
+	"github.com/swaggest/rest/nethttp"
+	"github.com/swaggest/rest/request"
 )
+
+type budgetSummaryReq struct {
+}
 
 type budgetSummaryHandler struct {
 	retrieveUC service.BudgetSummaryRetrieve
+	dec        nethttp.RequestDecoder
 }
 
 func NewBudgetSummaryHandler(retrieve service.BudgetSummaryRetrieve) Handler {
+	decoderFactory := request.NewDecoderFactory()
+	decoderFactory.ApplyDefaults = true
+	decoderFactory.SetDecoderFunc(rest.ParamInPath, gorillamux.PathToURLValues)
+
 	return &budgetSummaryHandler{
 		retrieveUC: retrieve,
+		dec:        decoderFactory.MakeDecoder(http.MethodGet, budgetSummaryReq{}, nil),
 	}
 }
 
 func (h *budgetSummaryHandler) RegisterEndpoints(router *mux.Router) {
-	router.HandleFunc("/budget-summary", h.retrieveBudgetSummary).Methods("GET")
+	router.Handle("/budget-summary", h).Methods("GET")
 }
 
-func (h *budgetSummaryHandler) retrieveBudgetSummary(w http.ResponseWriter, r *http.Request) {
+// SetupOpenAPIOperation declares OpenAPI schema for the handler.
+func (h *budgetSummaryHandler) SetupOpenAPIOperation(oc openapi.OperationContext) error {
+	oc.SetTags("My Tag")
+	oc.SetSummary("My Summary")
+	oc.SetDescription("This endpoint aggregates request in structured way.")
+
+	oc.AddReqStructure(budgetSummaryReq{})
+	oc.AddRespStructure(entity.BudgetSummaryAccount{})
+	oc.AddRespStructure(nil, openapi.WithContentType("text/html"), openapi.WithHTTPStatus(http.StatusNoContent))
+	oc.AddRespStructure(nil, openapi.WithContentType("text/html"), openapi.WithHTTPStatus(http.StatusBadRequest))
+	oc.AddRespStructure(nil, openapi.WithContentType("text/html"), openapi.WithHTTPStatus(http.StatusInternalServerError))
+	return nil
+}
+
+func (h *budgetSummaryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	urlMonth := r.URL.Query().Get("month")
 	urlYear := r.URL.Query().Get("year")

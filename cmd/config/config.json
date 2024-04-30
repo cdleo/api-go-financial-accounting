@@ -1,16 +1,8 @@
 {
-    "serverPort": 8080,
-    "exchangeRateService": {
-        "endpoint": "https://api.currencyapi.com/v3/latest",
-        "timeout": 30,
-        "interval": 60,
-        "apikey": "fJYviqNQp0bv5MHrafUgNIf1axc8sucMwtzl0tVS"
-    },
-    "countryService": {
-        "endpoint": "https://api.currencyapi.com/v3/latest",
-        "timeout": 30,
-        "interval": 60,
-        "apikey": "fJYviqNQp0bv5MHrafUgNIf1axc8sucMwtzl0tVS"
+    "server": {
+        "port": 8080,
+        "writeTimeout": 15,
+        "readTimeout": 15
     },    
     "db": {
         "driverName": "mongodb",
@@ -24,18 +16,5 @@
         "user": "",
         "password": "",
         "opts": "directConnection=true&replicaSet=rs0&retryWrites=true&w=majority&serverSelectionTimeoutMS=2000"
-    },
-    "db2": {
-        "driverName": "postgres",
-        "servers": [
-            {
-                "host": "127.0.0.1",
-                "port": 5432
-            }
-        ],
-        "dbName": "fadb",
-        "user": "fadb_usr",
-        "password": "fadb_pwd",
-        "opts": ""
     }
 }

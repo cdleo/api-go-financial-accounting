@@ -129,10 +129,38 @@ func (r *budgetRepository) Save(ctx context.Context, value *entity.Budget) error
 
 func (r *budgetRepository) Update(ctx context.Context, value *entity.Budget) error {
 
+	sctx, err := r.dbClient.StartTransaction(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			r.dbClient.Rollback(sctx)
+		}
+	}()
+
+	for i := 0; i < len(value.Accounts); i++ {
+		value.Accounts[i].Account.ParentID = value.ID
+		value.Accounts[i].Account.ID, err = r.getAccountID(value.Accounts[i].Account)
+		if err != nil {
+			return err
+		}
+
+		//TODO: Check if any account was deleted
+		if len(value.Accounts[i].Account.ID) == 0 {
+			err = r.accountRepo.Save(sctx, &value.Accounts[i].Account)
+		} else {
+			err = r.accountRepo.Update(sctx, value.Accounts[i].Account)
+		}
+		if err != nil {
+			return err
+		}
+	}
+
 	dto := mapToBudgetDTO(value)
 
 	filter := bson.D{{"_id", dto.ID}}
-	result, err := r.collection.ReplaceOne(ctx, filter, dto)
+	result, err := r.collection.ReplaceOne(sctx, filter, dto)
 	if err != nil {
 		return err
 	}
@@ -141,5 +169,17 @@ func (r *budgetRepository) Update(ctx context.Context, value *entity.Budget) err
 		return errors.New("not found")
 	}
 
-	return nil
+	return r.dbClient.Commit(sctx)
+}
+
+func (r *budgetRepository) getAccountID(value entity.Account) (string, error) {
+
+	acc, err := r.accountRepo.GetByHeader(context.TODO(), value.AccountHeader, value.ParentID)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return "", nil
+		}
+		return "", err
+	}
+	return acc.ID, nil
 }

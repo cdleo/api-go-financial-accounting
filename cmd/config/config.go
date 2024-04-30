@@ -4,11 +4,10 @@ import (
 	"github.com/cdleo/gonfig"
 )
 
-type ClientConfig struct {
-	Endpoint string
-	Timeout  int
-	Interval int
-	APIKey   string
+type HTTPServerConfig struct {
+	Port         int
+	WriteTimeout int
+	ReadTimeout  int
 }
 
 type DBServers struct {
@@ -27,9 +26,8 @@ type DBConfig struct {
 
 // APIConfig struct
 type APIConfig struct {
-	ServerPort          int
-	ExchangeRateService ClientConfig
-	DB                  DBConfig
+	Server HTTPServerConfig
+	DB     DBConfig
 }
 
 // GetAPIConfig obtiene configuracion API

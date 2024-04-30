@@ -17,6 +17,8 @@ import (
 	"github.com/cdleo/api-go-financial-accounting/internal/repository"
 	"github.com/cdleo/api-go-financial-accounting/internal/service"
 	"github.com/cdleo/api-go-financial-accounting/pkg/database"
+	"github.com/swaggest/openapi-go/openapi3"
+	"github.com/swaggest/rest/gorillamux"
 
 	"github.com/gorilla/mux"
 )
@@ -24,7 +26,7 @@ import (
 func main() {
 
 	/*  CONFIGURATION  */
-
+	generateOASFlag := flag.String("g", "", "generate OAS definition in the provided path")
 	configPathFlag := flag.String("p", "", "a string containing the full path of the configuration file")
 	configFileNameFlag := flag.String("f", "", "a string containing the configuration filename")
 	flag.Parse()
@@ -53,18 +55,6 @@ func main() {
 		os.Exit(1)
 	}
 	defer dbClient.Disconnect()
-
-	/*sqlProxy := sqlproxy.NewSQLProxyBuilder(connector.NewPostgreSqlConnector(config.DB.Host, config.DB.Port, config.DB.User, config.DB.Password, config.DB.DBName)).
-		WithAdapter(adapter.NewNoopAdapter()).
-		WithLogger(logger.NewNoLogLogger()).
-		Build()
-
-	sqlDB, err := sqlProxy.Open()
-	if err != nil {
-		fmt.Printf("Unable to connect to DB. Error: %v", err)
-		os.Exit(1)
-	}
-	defer sqlProxy.Close()*/
 
 	/*  REPOSITORIES  */
 	accountsRepository := repository.NewAccountRepository(dbClient)
@@ -97,13 +87,46 @@ func main() {
 		handler.RegisterEndpoints(httpRouter)
 	}
 
+	if len(*generateOASFlag) > 0 {
+		if err := generateOASFile(*generateOASFlag, httpRouter); err != nil {
+			fmt.Printf("Unable to generate OAS file. Error: %s\n", err)
+		}
+	}
+
 	srv := &http.Server{
-		Handler: httpRouter,
-		Addr:    "127.0.0.1:" + strconv.Itoa(config.ServerPort),
-		// Good practice: enforce timeouts for servers you create!
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
+		Handler:      httpRouter,
+		Addr:         "127.0.0.1:" + strconv.Itoa(config.Server.Port),
+		WriteTimeout: time.Duration(config.Server.WriteTimeout) * time.Second,
+		ReadTimeout:  time.Duration(config.Server.ReadTimeout) * time.Second,
 	}
 
 	log.Fatal(srv.ListenAndServe())
+}
+
+func generateOASFile(oasPath string, router *mux.Router) error {
+
+	// Setup OpenAPI schema.
+	refl := openapi3.NewReflector()
+	refl.SpecSchema().SetTitle("Financial Accounting API")
+	refl.SpecSchema().SetVersion("v0.1.0")
+	refl.SpecSchema().SetDescription("OAS for the financial accounting API")
+	// Walk the router with OpenAPI collector.
+	c := gorillamux.NewOpenAPICollector(refl)
+	_ = router.Walk(c.Walker)
+
+	// Get the resulting schema.
+	yml, err := refl.Spec.MarshalYAML()
+	if err != nil {
+		return err
+	}
+
+	oasFilePath := oasPath + "/oas.yaml"
+	f, err := os.Create(oasFilePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = f.Write(yml)
+	return err
 }

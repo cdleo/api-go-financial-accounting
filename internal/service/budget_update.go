@@ -22,15 +22,9 @@ func (s *budgetUpdate) UpdateBudget(value entity.Budget) error {
 
 	ctx := context.Background()
 
-	_, err := s.repo.GetByDate(ctx, value.Month, value.Year)
+	_, err := s.repo.GetById(ctx, value.ID)
 	if err != nil {
 		return err
-	}
-
-	for i := 0; i < len(value.Accounts); i++ {
-		if err := s.accountUpdate.UpdateAccount(value.Accounts[i].Account); err != nil {
-			return err
-		}
 	}
 
 	return s.repo.Update(ctx, &value)
