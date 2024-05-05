@@ -1,20 +1,20 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/cdleo/api-go-financial-accounting/internal/entity"
-	"github.com/cdleo/api-go-financial-accounting/internal/service"
 	"github.com/gorilla/mux"
 )
 
 type transferenceHandler struct {
-	transferUC service.MakeTransference
+	transferUC entity.MakeTransference
 }
 
-func NewTransferenceHandler(transfer service.MakeTransference) Handler {
+func NewTransferenceHandler(transfer entity.MakeTransference) Handler {
 	return &transferenceHandler{
 		transferUC: transfer,
 	}
@@ -26,7 +26,7 @@ func (h *transferenceHandler) RegisterEndpoints(router *mux.Router) {
 
 func (h *transferenceHandler) makeTransference(w http.ResponseWriter, r *http.Request) {
 
-	var request entity.Transference
+	var request entity.Transfer
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
@@ -34,7 +34,7 @@ func (h *transferenceHandler) makeTransference(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err := h.transferUC.MakeTransference(request)
+	err := h.transferUC.MakeTransference(context.TODO(), request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to create: %v", err)

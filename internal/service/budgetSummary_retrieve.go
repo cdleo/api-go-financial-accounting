@@ -1,26 +1,24 @@
 package service
 
 import (
+	"context"
+
 	"github.com/cdleo/api-go-financial-accounting/internal/entity"
 )
-
-type BudgetSummaryRetrieve interface {
-	GetBudgetSummaryByDate(month int, year int) (*entity.BudgetSummary, error)
-}
 
 type budgetSummaryRetrieve struct {
 	service entity.BudgetRetrieve
 }
 
-func NewBudgetSummaryRetrieve(service entity.BudgetRetrieve) BudgetSummaryRetrieve {
+func NewBudgetSummaryRetrieve(service entity.BudgetRetrieve) entity.BudgetSummaryRetrieve {
 	return &budgetSummaryRetrieve{
 		service: service,
 	}
 }
 
-func (s *budgetSummaryRetrieve) GetBudgetSummaryByDate(month int, year int) (*entity.BudgetSummary, error) {
+func (s *budgetSummaryRetrieve) GetBudgetSummaryByDate(ctx context.Context, month int, year int) (*entity.BudgetSummary, error) {
 
-	budget, err := s.service.GetBudgetByDate(month, year)
+	budget, err := s.service.GetBudgetByDate(ctx, month, year)
 	if budget == nil || err != nil {
 		return nil, err
 	}
@@ -41,10 +39,10 @@ func (s *budgetSummaryRetrieve) GetBudgetSummaryByDate(month int, year int) (*en
 			TotalExpected:  0,
 		}
 
-		summaryMap := make(map[entity.ExpenseType]entity.ExpenseSummary)
+		summaryMap := make(map[entity.RecordCategory]entity.SummaryDetails)
 		// Sumamos lo esperado
 		var totalExpenses float32 = 0
-		for _, expected := range account.Expected {
+		for _, expected := range account.Planned {
 
 			var totalExpensesForType float32 = 0
 			for _, expenses := range expected.Expenses {
@@ -52,28 +50,28 @@ func (s *budgetSummaryRetrieve) GetBudgetSummaryByDate(month int, year int) (*en
 			}
 			totalExpenses += totalExpensesForType
 
-			typeSummary := entity.ExpenseSummary{
-				Type:     expected.Type,
+			typeSummary := entity.SummaryDetails{
+				Category: expected.Category,
 				Expected: totalExpensesForType,
 				Current:  0,
 			}
 
-			summaryMap[typeSummary.Type] = typeSummary
+			summaryMap[typeSummary.Category] = typeSummary
 		}
 		accountSummary.TotalExpected = totalExpenses
 
 		// Sumamos lo acontecido por tipo de gasto y calculamos el balance total
 		for _, movement := range account.Movements {
 
-			if movement.Kind == entity.Credit {
+			if movement.Type == entity.Credit {
 				accountSummary.CurrentBalance += movement.Amount
 				continue
 			}
 
 			typeSummary, ok := summaryMap[movement.SubType]
 			if !ok {
-				typeSummary = entity.ExpenseSummary{
-					Type:     movement.SubType,
+				typeSummary = entity.SummaryDetails{
+					Category: movement.SubType,
 					Expected: 0,
 					Current:  movement.Amount,
 				}

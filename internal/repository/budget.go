@@ -27,8 +27,8 @@ type BudgetDTO struct {
 }
 
 type BudgetAccountDTO struct {
-	AccountID primitive.ObjectID       `bson:"account_id,omitempty"` /* ObjectID */
-	Expected  []entity.ExpenseExpected `bson:"expected,omitempty"`
+	AccountID primitive.ObjectID      `bson:"account_id,omitempty"` /* ObjectID */
+	Planned   []entity.ExpensePlanned `bson:"planned,omitempty"`
 }
 
 func NewBudgetRepository(dbClient *database.MongoDBClient, accountRepo entity.AccountRepository) entity.BudgetRepository {
@@ -69,30 +69,43 @@ func (r *budgetRepository) GetById(ctx context.Context, id string) (*entity.Budg
 	return mapToBudget(record, r.accountRepo)
 }
 
-func (r *budgetRepository) GetAll(ctx context.Context) ([]*entity.Budget, error) {
+func (r *budgetRepository) GetInfo(ctx context.Context) ([]*entity.BudgetInfo, error) {
 
 	cursor, err := r.collection.Find(ctx, bson.D{{}})
 	if err != nil {
 		return nil, err
 	}
 
-	results := make([]*entity.Budget, 0)
+	results := make([]*entity.BudgetInfo, 0)
 	for cursor.Next(ctx) {
 		var resultDTO BudgetDTO
 		if err := cursor.Decode(&resultDTO); err != nil {
 			return nil, err
 		}
-		if result, err := mapToBudget(&resultDTO, r.accountRepo); err != nil {
-			return nil, err
-		} else {
-			results = append(results, result)
-		}
+		results = append(results, mapToBudgetInfo(&resultDTO))
 	}
 	if err := cursor.Err(); err != nil {
 		return nil, err
 	}
 
 	return results, nil
+}
+
+func (r *budgetRepository) GetInfoById(ctx context.Context, id string) (*entity.BudgetInfo, error) {
+
+	var record *BudgetDTO = nil
+
+	// convert id string to ObjectId
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, errors.New("invalid id")
+	}
+
+	err = r.collection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&record)
+	if err != nil {
+		return nil, err
+	}
+	return mapToBudgetInfo(record), nil
 }
 
 func (r *budgetRepository) Save(ctx context.Context, value *entity.Budget) error {

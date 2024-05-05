@@ -7,23 +7,17 @@ import (
 	"github.com/cdleo/api-go-financial-accounting/internal/entity"
 )
 
-type MakeTransference interface {
-	MakeTransference(transference entity.Transference) error
-}
-
 type makeTransference struct {
 	repo entity.AccountRepository
 }
 
-func NewMakeTransference(repo entity.AccountRepository) MakeTransference {
+func NewMakeTransference(repo entity.AccountRepository) entity.MakeTransference {
 	return &makeTransference{
 		repo: repo,
 	}
 }
 
-func (m *makeTransference) MakeTransference(transference entity.Transference) error {
-
-	ctx := context.Background()
+func (m *makeTransference) MakeTransference(ctx context.Context, transference entity.Transfer) error {
 
 	fromAccount, err := m.repo.GetByID(ctx, transference.FromID)
 	if err != nil {
@@ -46,13 +40,14 @@ func (m *makeTransference) MakeTransference(transference entity.Transference) er
 	}
 	fromDetails := entity.TrxDetails{
 		Date:        transference.Details.Date,
-		Kind:        entity.Debit,
+		Type:        entity.Debit,
+		SubType:     entity.Transference,
 		Description: transference.Details.Description,
 		Amount:      transference.Details.Amount + transference.Details.FromFee,
 	}
 
 	fromAccount.Movements = append(fromAccount.Movements, fromDetails)
-	fromAccount.Balance += (fromDetails.Kind.Modifier() * fromDetails.Amount)
+	fromAccount.Balance += (fromDetails.Type.Modifier() * fromDetails.Amount)
 	if fromAccount.Balance < 0 {
 		return fmt.Errorf("Insufficient founds")
 	}
@@ -63,13 +58,14 @@ func (m *makeTransference) MakeTransference(transference entity.Transference) er
 	}
 	toDetails := entity.TrxDetails{
 		Date:        transference.Details.Date,
-		Kind:        entity.Credit,
+		Type:        entity.Credit,
+		SubType:     entity.Transference,
 		Description: transference.Details.Description,
 		Amount:      (transference.Details.Amount - transference.Details.ToFee) * transference.Details.Rate,
 	}
 
 	toAccount.Movements = append(toAccount.Movements, toDetails)
-	toAccount.Balance += (toDetails.Kind.Modifier() * toDetails.Amount)
+	toAccount.Balance += (toDetails.Type.Modifier() * toDetails.Amount)
 	accounts = append(accounts, *toAccount)
 
 	return m.repo.UpdateMany(ctx, accounts)

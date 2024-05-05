@@ -61,15 +61,15 @@ func main() {
 	budgetsRepository := repository.NewBudgetRepository(dbClient, accountsRepository)
 
 	/*  SERVICES  */
-	accountCreate := service.NewAccountCreate(accountsRepository)
-	accountRetrieve := service.NewAccountRetrieve(accountsRepository)
-	accountUpdate := service.NewAccountUpdate(accountsRepository)
-
 	budgetCreate := service.NewBudgetCreate(budgetsRepository)
-	budgetRetrieve := service.NewBudgetRetrieve(budgetsRepository, accountRetrieve)
-	budgetUpdate := service.NewBudgetUpdate(budgetsRepository, accountUpdate)
+	budgetRetrieve := service.NewBudgetRetrieve(budgetsRepository)
+	budgetUpdate := service.NewBudgetUpdate(budgetsRepository)
 
 	budgetSummaryRetrieve := service.NewBudgetSummaryRetrieve(budgetRetrieve)
+
+	accountCreate := service.NewAccountCreate(accountsRepository)
+	accountRetrieve := service.NewAccountRetrieve(accountsRepository, budgetsRepository)
+	accountUpdate := service.NewAccountUpdate(accountsRepository)
 
 	makeTransaction := service.NewMakeTransaction(accountsRepository)
 	makeTransference := service.NewMakeTransference(accountsRepository)

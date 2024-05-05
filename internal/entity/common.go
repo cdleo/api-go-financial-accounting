@@ -54,23 +54,24 @@ var TransactionTypes = []TransactionType{
 	Debit,
 }
 
-type ExpenseType string
+type RecordCategory string
 
 const (
-	Bill          ExpenseType = "Bill"
-	Fuel          ExpenseType = "Fuel"
-	Goods         ExpenseType = "Goods"
-	Groceries     ExpenseType = "Groceries"
-	Entertainment ExpenseType = "Entertainment"
-	Investment    ExpenseType = "Investment"
-	Income        ExpenseType = "Income"
+	Bill          RecordCategory = "Bill"
+	Fuel          RecordCategory = "Fuel"
+	Goods         RecordCategory = "Goods"
+	Groceries     RecordCategory = "Groceries"
+	Entertainment RecordCategory = "Entertainment"
+	Investment    RecordCategory = "Investment"
+	Income        RecordCategory = "Income"
+	Transference  RecordCategory = "Transference"
 )
 
-var ExpenseTypes = []ExpenseType{
+var RecordCategorys = []RecordCategory{
 	Bill,
 	Fuel,
 	Groceries,
 	Entertainment,
 	Investment,
-	Income,
+	Transference,
 }

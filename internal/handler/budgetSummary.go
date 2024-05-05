@@ -1,13 +1,13 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/cdleo/api-go-financial-accounting/internal/entity"
-	"github.com/cdleo/api-go-financial-accounting/internal/service"
 	"github.com/gorilla/mux"
 	"github.com/swaggest/openapi-go"
 	"github.com/swaggest/rest"
@@ -20,11 +20,11 @@ type budgetSummaryReq struct {
 }
 
 type budgetSummaryHandler struct {
-	retrieveUC service.BudgetSummaryRetrieve
+	retrieveUC entity.BudgetSummaryRetrieve
 	dec        nethttp.RequestDecoder
 }
 
-func NewBudgetSummaryHandler(retrieve service.BudgetSummaryRetrieve) Handler {
+func NewBudgetSummaryHandler(retrieve entity.BudgetSummaryRetrieve) Handler {
 	decoderFactory := request.NewDecoderFactory()
 	decoderFactory.ApplyDefaults = true
 	decoderFactory.SetDecoderFunc(rest.ParamInPath, gorillamux.PathToURLValues)
@@ -74,7 +74,7 @@ func (h *budgetSummaryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	value, err := h.retrieveUC.GetBudgetSummaryByDate(month, year)
+	value, err := h.retrieveUC.GetBudgetSummaryByDate(context.TODO(), month, year)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to retrieve: %v", err)

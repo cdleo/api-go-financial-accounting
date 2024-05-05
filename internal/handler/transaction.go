@@ -1,20 +1,20 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/cdleo/api-go-financial-accounting/internal/entity"
-	"github.com/cdleo/api-go-financial-accounting/internal/service"
 	"github.com/gorilla/mux"
 )
 
 type transactionHandler struct {
-	createUC service.MakeTransaction
+	createUC entity.MakeTransaction
 }
 
-func NewTransactionHandler(create service.MakeTransaction) Handler {
+func NewTransactionHandler(create entity.MakeTransaction) Handler {
 	return &transactionHandler{
 		createUC: create,
 	}
@@ -34,7 +34,7 @@ func (h *transactionHandler) addTrxToAccount(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err := h.createUC.MakeTransaction(request)
+	err := h.createUC.MakeTransaction(context.TODO(), request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to create: %v", err)

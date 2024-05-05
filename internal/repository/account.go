@@ -72,20 +72,20 @@ func (r *accountRepository) GetByHeader(ctx context.Context, header entity.Accou
 	return mapToAccount(&record), nil
 }
 
-func (r *accountRepository) GetAll(ctx context.Context) ([]*entity.AccountSummary, error) {
+func (r *accountRepository) GetInfo(ctx context.Context, budgetRepo entity.BudgetRepository) ([]*entity.AccountInfo, error) {
 
 	cursor, err := r.collection.Find(ctx, bson.D{{}})
 	if err != nil {
 		return nil, err
 	}
 
-	results := make([]*entity.AccountSummary, 0)
+	results := make([]*entity.AccountInfo, 0)
 	for cursor.Next(ctx) {
 		var resultDTO AccountDTO
 		if err := cursor.Decode(&resultDTO); err != nil {
 			return nil, err
 		}
-		results = append(results, mapToAccountSummary(&resultDTO))
+		results = append(results, mapToAccountInfo(&resultDTO, budgetRepo))
 	}
 	if err := cursor.Err(); err != nil {
 		return nil, err

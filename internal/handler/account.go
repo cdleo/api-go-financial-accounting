@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -41,7 +42,7 @@ func (h *accountHandler) createAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.createUC.CreateAccount(&request)
+	err := h.createUC.CreateAccount(context.TODO(), &request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to create: %v", err)
@@ -70,7 +71,7 @@ func (h *accountHandler) retrieveAccount(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	value, err := h.retrieveUC.GetAccountByID(accountId)
+	value, err := h.retrieveUC.GetAccountByID(context.TODO(), accountId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to retrieve: %v", err)
@@ -93,7 +94,7 @@ func (h *accountHandler) retrieveAccount(w http.ResponseWriter, r *http.Request)
 
 func (h *accountHandler) retrieveAccounts(w http.ResponseWriter, r *http.Request) {
 
-	accounts, err := h.retrieveUC.GetAccounts()
+	accounts, err := h.retrieveUC.GetAccounts(context.TODO())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to retrieve: %v", err)
@@ -132,7 +133,7 @@ func (h *accountHandler) updateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	request.ID = accountId
-	err := h.updateUC.UpdateAccount(request)
+	err := h.updateUC.UpdateAccount(context.TODO(), request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to update: %v", err)

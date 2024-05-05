@@ -7,19 +7,28 @@ import (
 )
 
 type accountRetrieve struct {
-	repo entity.AccountRepository
+	accountRepo entity.AccountRepository
+	budgetRepo  entity.BudgetRepository
 }
 
-func NewAccountRetrieve(repo entity.AccountRepository) entity.AccountRetrieve {
+func NewAccountRetrieve(accountRepo entity.AccountRepository, budgetRepo entity.BudgetRepository) entity.AccountRetrieve {
 	return &accountRetrieve{
-		repo: repo,
+		accountRepo: accountRepo,
+		budgetRepo:  budgetRepo,
 	}
 }
 
-func (s *accountRetrieve) GetAccounts() ([]*entity.AccountSummary, error) {
-	return s.repo.GetAll(context.Background())
+func (s *accountRetrieve) GetAccounts(ctx context.Context) ([]*entity.AccountInfo, error) {
+	return s.accountRepo.GetInfo(ctx, s.budgetRepo)
 }
 
-func (s *accountRetrieve) GetAccountByID(accountId string) (*entity.Account, error) {
-	return s.repo.GetByID(context.Background(), accountId)
+func (s *accountRetrieve) GetAccountByID(ctx context.Context, accountId string) (*entity.Account, error) {
+	account, err := s.accountRepo.GetByID(ctx, accountId)
+	if err != nil {
+		return nil, err
+	}
+	if len(account.ParentID) > 0 {
+		account.Budget, err = s.budgetRepo.GetInfoById(context.Background(), account.ParentID)
+	}
+	return account, err
 }

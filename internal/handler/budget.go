@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -41,7 +42,7 @@ func (h *budgetHandler) createBudget(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.createUC.CreateBudget(&request)
+	err := h.createUC.CreateBudget(context.TODO(), &request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to create: %v", err)
@@ -71,7 +72,7 @@ func (h *budgetHandler) retrieveBudget(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	value, err := h.retrieveUC.GetBudgetById(id)
+	value, err := h.retrieveUC.GetBudgetById(context.TODO(), id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to retrieve: %v", err)
@@ -94,7 +95,7 @@ func (h *budgetHandler) retrieveBudget(w http.ResponseWriter, r *http.Request) {
 
 func (h *budgetHandler) retrieveBudgets(w http.ResponseWriter, r *http.Request) {
 
-	results, err := h.retrieveUC.GetBudgets()
+	results, err := h.retrieveUC.GetBudgetInfo(context.TODO())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to retrieve: %v", err)
@@ -106,16 +107,8 @@ func (h *budgetHandler) retrieveBudgets(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	budgets := make([]entity.BudgetInfo, 0)
-	for _, budget := range results {
-		budgets = append(budgets, entity.BudgetInfo{
-			ID:          budget.ID,
-			Description: budget.Description,
-		})
-	}
-
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	if err := json.NewEncoder(w).Encode(budgets); err != nil {
+	if err := json.NewEncoder(w).Encode(results); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to encode response: %v", err)
 		return
@@ -143,7 +136,7 @@ func (h *budgetHandler) updateBudget(w http.ResponseWriter, r *http.Request) {
 
 	request.ID = id
 
-	err := h.updateUC.UpdateBudget(request)
+	err := h.updateUC.UpdateBudget(context.TODO(), request)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "unable to create: %v", err)

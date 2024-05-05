@@ -16,6 +16,6 @@ func NewAccountCreate(repo entity.AccountRepository) entity.AccountCreate {
 	}
 }
 
-func (s *accountcreate) CreateAccount(value *entity.Account) error {
-	return s.repo.Save(context.Background(), value)
+func (s *accountcreate) CreateAccount(ctx context.Context, value *entity.Account) error {
+	return s.repo.Save(ctx, value)
 }

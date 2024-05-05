@@ -7,20 +7,16 @@ import (
 )
 
 type budgetUpdate struct {
-	repo          entity.BudgetRepository
-	accountUpdate entity.AccountUpdate
+	repo entity.BudgetRepository
 }
 
-func NewBudgetUpdate(repo entity.BudgetRepository, accountUpdate entity.AccountUpdate) entity.BudgetUpdate {
+func NewBudgetUpdate(repo entity.BudgetRepository) entity.BudgetUpdate {
 	return &budgetUpdate{
-		repo:          repo,
-		accountUpdate: accountUpdate,
+		repo: repo,
 	}
 }
 
-func (s *budgetUpdate) UpdateBudget(value entity.Budget) error {
-
-	ctx := context.Background()
+func (s *budgetUpdate) UpdateBudget(ctx context.Context, value entity.Budget) error {
 
 	_, err := s.repo.GetById(ctx, value.ID)
 	if err != nil {

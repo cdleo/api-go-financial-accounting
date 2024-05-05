@@ -7,25 +7,23 @@ import (
 )
 
 type budgetRetrieve struct {
-	repo           entity.BudgetRepository
-	acountRetrieve entity.AccountRetrieve
+	repo entity.BudgetRepository
 }
 
-func NewBudgetRetrieve(repo entity.BudgetRepository, acountRetrieve entity.AccountRetrieve) entity.BudgetRetrieve {
+func NewBudgetRetrieve(repo entity.BudgetRepository) entity.BudgetRetrieve {
 	return &budgetRetrieve{
-		repo:           repo,
-		acountRetrieve: acountRetrieve,
+		repo: repo,
 	}
 }
 
-func (s *budgetRetrieve) GetBudgets() ([]*entity.Budget, error) {
-	return s.repo.GetAll(context.Background())
+func (s *budgetRetrieve) GetBudgetInfo(ctx context.Context) ([]*entity.BudgetInfo, error) {
+	return s.repo.GetInfo(ctx)
 }
 
-func (s *budgetRetrieve) GetBudgetByDate(month int, year int) (*entity.Budget, error) {
-	return s.repo.GetByDate(context.Background(), month, year)
+func (s *budgetRetrieve) GetBudgetByDate(ctx context.Context, month int, year int) (*entity.Budget, error) {
+	return s.repo.GetByDate(ctx, month, year)
 }
 
-func (s *budgetRetrieve) GetBudgetById(id string) (*entity.Budget, error) {
-	return s.repo.GetById(context.Background(), id)
+func (s *budgetRetrieve) GetBudgetById(ctx context.Context, id string) (*entity.Budget, error) {
+	return s.repo.GetById(ctx, id)
 }

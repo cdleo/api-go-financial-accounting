@@ -28,7 +28,7 @@ func mapToBudgetAccountDTO(b *entity.BudgetAccount) *BudgetAccountDTO {
 	id, _ := primitive.ObjectIDFromHex(b.ID)
 	return &BudgetAccountDTO{
 		AccountID: id,
-		Expected:  b.Expected,
+		Planned:   b.Planned,
 	}
 }
 
@@ -59,7 +59,15 @@ func mapToBudgetAccount(b *BudgetAccountDTO, accountRepo entity.AccountRepositor
 		return nil, err
 	}
 	return &entity.BudgetAccount{
-		Account:  *account,
-		Expected: b.Expected,
+		Account: *account,
+		Planned: b.Planned,
 	}, nil
+}
+
+func mapToBudgetInfo(b *BudgetDTO) *entity.BudgetInfo {
+
+	return &entity.BudgetInfo{
+		ID:          b.ID.Hex(),
+		Description: b.Description,
+	}
 }

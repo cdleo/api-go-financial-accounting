@@ -31,28 +31,29 @@ type Budget struct {
 }
 
 type BudgetAccount struct {
-	Account  `json:",inline"`
-	Expected []ExpenseExpected `json:"expected"`
+	Account `json:",inline"`
+	Planned []ExpensePlanned `json:"planned"`
 }
 
 type BudgetCreate interface {
-	CreateBudget(value *Budget) error
+	CreateBudget(ctx context.Context, value *Budget) error
 }
 
 type BudgetRetrieve interface {
-	GetBudgets() ([]*Budget, error)
-	GetBudgetById(id string) (*Budget, error)
-	GetBudgetByDate(month int, year int) (*Budget, error)
+	GetBudgetInfo(ctx context.Context) ([]*BudgetInfo, error)
+	GetBudgetById(ctx context.Context, id string) (*Budget, error)
+	GetBudgetByDate(ctx context.Context, month int, year int) (*Budget, error)
 }
 
 type BudgetUpdate interface {
-	UpdateBudget(value Budget) error
+	UpdateBudget(ctx context.Context, value Budget) error
 }
 
 type BudgetRepository interface {
 	GetByDate(ctx context.Context, month int, year int) (*Budget, error)
 	GetById(ctx context.Context, id string) (*Budget, error)
-	GetAll(ctx context.Context) ([]*Budget, error)
+	GetInfo(ctx context.Context) ([]*BudgetInfo, error)
+	GetInfoById(ctx context.Context, id string) (*BudgetInfo, error)
 	Save(ctx context.Context, value *Budget) error
 	Update(ctx context.Context, value *Budget) error
 }

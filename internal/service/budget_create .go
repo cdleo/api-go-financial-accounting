@@ -18,9 +18,7 @@ func NewBudgetCreate(repo entity.BudgetRepository) entity.BudgetCreate {
 	}
 }
 
-func (s *Budgetcreate) CreateBudget(value *entity.Budget) error {
-
-	ctx := context.Background()
+func (s *Budgetcreate) CreateBudget(ctx context.Context, value *entity.Budget) error {
 
 	budget, err := s.repo.GetByDate(ctx, value.Month, value.Year)
 	if err != nil && err != mongo.ErrNoDocuments {
